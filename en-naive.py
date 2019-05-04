@@ -2,7 +2,7 @@ import csv
 import random
 import numpy as np
 from sklearn import preprocessing
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import BernoulliNB
 
 def open_file(file):
     global x1, x2, y
@@ -73,8 +73,8 @@ def naive_bayes(x1, x2, y, test1, test2):
     #gabungin x1 sama x2
     features = list(zip(x1_encode, x2_encode))
 
-    #bikin gaussian classifier
-    model = GaussianNB()
+    #bikin bernoulli classifier
+    model = BernoulliNB()
 
     #train model dengan datatrain
     model.fit(features, y_encode)
