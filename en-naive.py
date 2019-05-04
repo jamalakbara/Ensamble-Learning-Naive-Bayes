@@ -82,7 +82,7 @@ with open('TestsetTugas4ML.csv') as csv_file:
             x1_test.append(att1)
             x2_test.append(att2)
 
-
+#fungsi utama
 def main():
     #bikin 6 bags berbasis naive bayes buat bagging modul nya
     bag1 = modul(x1_train, x2_train, y_train)
@@ -142,4 +142,5 @@ def main():
             elif count1 < count2:
                     writeCsv.writerow([2])
 
+#jalanin fungsi utama
 main()
