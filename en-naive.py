@@ -1,7 +1,7 @@
 import csv
 import random
 from sklearn import preprocessing
-from sklearn.naive_bayes import BernoulliNB
+from sklearn.naive_bayes import MultinomialNB
 
 #bikin bag
 def modul(atribut1,atribut2,label):
@@ -35,7 +35,7 @@ def naive_bayes(train_att1, train_att2, y, test_att1, test_att2):
     features = list(zip(train_att1_encode, train_att2_encode))
 
     #bikin bernoulli classifier
-    model = BernoulliNB()
+    model = MultinomialNB()
 
     #train model dengan datatrain
     model.fit(features, y_encode)
@@ -82,11 +82,6 @@ with open('TestsetTugas4ML.csv') as csv_file:
             x1_test.append(att1)
             x2_test.append(att2)
 
-<<<<<<< HEAD
-if __name__ == '__main__':
-    main
-    print("Tebakan saved")
-=======
 #fungsi utama
 def main():
     #bikin 6 bags berbasis naive bayes buat bagging modul nya
@@ -149,4 +144,3 @@ def main():
 
 #jalanin fungsi utama
 main()
->>>>>>> f2dbf21ff837ad1e97a1041869f8e5c7a99c622d
