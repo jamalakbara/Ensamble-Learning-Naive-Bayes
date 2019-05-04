@@ -91,37 +91,42 @@ def naive_bayes(x1, x2, y, test1, test2):
 
     return hasil_prediksi
 
-trainset = open_file('TrainsetTugas4ML.csv')
+def main():
+    trainset = open_file('TrainsetTugas4ML.csv')
 
-#read testset
-testset = open_file('TestsetTugas4ML.csv')
+    #read testset
+    testset = open_file('TestsetTugas4ML.csv')
 
-#bikin 5 bags berbasis naive bayes buat bagging nya
-bag1 = bagging(trainset[0], trainset[1], trainset[2]); bag2 = bagging(trainset[0], trainset[1], trainset[2]); bag3 = bagging(trainset[0], trainset[1], trainset[2]); bag4 = bagging(trainset[0], trainset[1], trainset[2]); bag5 = bagging(trainset[0], trainset[1], trainset[2])
+    #bikin 5 bags berbasis naive bayes buat bagging nya
+    bag1 = bagging(trainset[0], trainset[1], trainset[2]); bag2 = bagging(trainset[0], trainset[1], trainset[2]); bag3 = bagging(trainset[0], trainset[1], trainset[2]); bag4 = bagging(trainset[0], trainset[1], trainset[2]); bag5 = bagging(trainset[0], trainset[1], trainset[2])
 
-#memasukkan hasil prediksi/klasifikasi naive bayes ke matriks
-matriks = np.matrix(
-    [naive_bayes(bag1[0],bag1[1],bag1[2],testset[0],testset[1]),
-     naive_bayes(bag2[0],bag2[1],bag2[2],testset[0],testset[1]),
-     naive_bayes(bag3[0],bag3[1],bag3[2],testset[0],testset[1]),
-     naive_bayes(bag4[0],bag4[1],bag4[2],testset[0],testset[1]),
-     naive_bayes(bag5[0],bag5[1],bag5[2],testset[0],testset[1])]
-)
+    #memasukkan hasil prediksi/klasifikasi naive bayes ke matriks
+    matriks = np.matrix(
+        [naive_bayes(bag1[0],bag1[1],bag1[2],testset[0],testset[1]),
+         naive_bayes(bag2[0],bag2[1],bag2[2],testset[0],testset[1]),
+         naive_bayes(bag3[0],bag3[1],bag3[2],testset[0],testset[1]),
+         naive_bayes(bag4[0],bag4[1],bag4[2],testset[0],testset[1]),
+         naive_bayes(bag5[0],bag5[1],bag5[2],testset[0],testset[1])]
+    )
 
-#voting dari setiap bags untuk dipilih class/label yg akan dipake
-final_pref = []
-for i in range(len(testset[0])):
-    class1, class2 = 0, 0
-    #ngitung banyakan class yang 2 apa 1
-    for j in range(len(matriks)):
-        if matriks[j, i] == 0:
-            class2 += 1
+    #voting dari setiap bags untuk dipilih class/label yg akan dipake
+    final_pref = []
+    for i in range(len(testset[0])):
+        class1, class2 = 0, 0
+        #ngitung banyakan class yang 2 apa 1
+        for j in range(len(matriks)):
+            if matriks[j, i] == 0:
+                class2 += 1
+            else:
+                class1 += 1
+
+        if class1 > class2:
+            final_pref.append(1)
         else:
-            class1 += 1
+            final_pref.append(2)
 
-    if class1 > class2:
-        final_pref.append(1)
-    else:
-        final_pref.append(2)
+    #write file into csv
+    save_file(final_pref)
 
-save_file(final_pref)
+if __name__ == '__main__':
+    main
