@@ -46,6 +46,48 @@ def save_file(hasil):
         for row in hasil:
             writeCsv.writerow([row])
 
+def open_file(file):
+    global x1, x2, y
+    with open(file) as csv_file:
+        csv_reader = csv.reader(csv_file)
+        skip_row = 0
+
+        if file == 'TrainsetTugas4ML.csv':
+            x1, x2, y = [], [], []
+
+            for row in csv_reader:
+                if skip_row == 0:
+                    skip_row = 1
+                else:
+                    att1 = row[0]
+                    att2 = row[1]
+                    klass = row[2]
+                    x1.append(att1)
+                    x2.append(att2)
+                    y.append(klass)
+
+            return x1, x2, y
+        elif file == 'TestsetTugas4ML.csv':
+            x1, x2 = [], []
+
+            for row in csv_reader:
+                if skip_row == 0:
+                    skip_row = 1
+                else:
+                    att1 = row[0]
+                    att2 = row[1]
+                    x1.append(att1)
+                    x2.append(att2)
+
+            return x1, x2
+
+def save_file(hasil):
+    with open("TebakanTugas4ML.csv", 'w', newline='') as csv_file:
+        writeCsv = csv.writer(csv_file)
+
+        for row in hasil:
+            writeCsv.writerow([row])
+
 #bikin bag
 def bagging(x1,x2,y):
     bag_x1, bag_x2, bag_y = [], [], []
