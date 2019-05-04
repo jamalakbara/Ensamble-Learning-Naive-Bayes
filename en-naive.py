@@ -1,7 +1,7 @@
 import csv
 import random
 from sklearn import preprocessing
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import BernoulliNB
 
 #bikin bag
 def modul(atribut1,atribut2,label):
@@ -34,8 +34,8 @@ def naive_bayes(train_att1, train_att2, y, test_att1, test_att2):
     #gabungin train_att1 sama train_att2
     features = list(zip(train_att1_encode, train_att2_encode))
 
-    #bikin gaussian classifier
-    model = GaussianNB()
+    #bikin bernoulli classifier
+    model = BernoulliNB()
 
     #train model dengan datatrain
     model.fit(features, y_encode)
