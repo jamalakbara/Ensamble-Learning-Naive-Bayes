@@ -1,146 +1,132 @@
 import csv
 import random
+import numpy as np
 from sklearn import preprocessing
-from sklearn.naive_bayes import BernoulliNB
+from sklearn.naive_bayes import GaussianNB
+
+def open_file(file):
+    global x1, x2, y
+    with open(file) as csv_file:
+        csv_reader = csv.reader(csv_file)
+        skip_row = 0
+
+        if file == 'TrainsetTugas4ML.csv':
+            x1, x2, y = [], [], []
+
+            for row in csv_reader:
+                if skip_row == 0:
+                    skip_row = 1
+                else:
+                    att1 = row[0]
+                    att2 = row[1]
+                    klass = row[2]
+                    x1.append(att1)
+                    x2.append(att2)
+                    y.append(klass)
+
+            return x1, x2, y
+        elif file == 'TestsetTugas4ML.csv':
+            x1, x2 = [], []
+
+            for row in csv_reader:
+                if skip_row == 0:
+                    skip_row = 1
+                else:
+                    att1 = row[0]
+                    att2 = row[1]
+                    x1.append(att1)
+                    x2.append(att2)
+
+            return x1, x2
+
+def save_file(hasil):
+    with open("TebakanTugas4ML.csv", 'w', newline='') as csv_file:
+        writeCsv = csv.writer(csv_file)
+
+        for row in hasil:
+            writeCsv.writerow([row])
 
 #bikin bag
-def modul(atribut1,atribut2,label):
-    bag_x1 = []
-    bag_x2 = []
-    bag_y = []
-
-    panjang_bag = round(len(atribut1)*0.4)
-    for i in range(0, panjang_bag):
-        rand_index = random.randint(0,len(atribut1))
+def bagging(x1,x2,y):
+    bag_x1, bag_x2, bag_y = [], [], []
+    for i in range(round(len(x1)*0.6)):
+        rand_index = random.randint(0,len(x1))
         if rand_index == 298:
-            rand_index = 298 - random.randint(0,298)
+            rand_index = 297
 
-        bag_x1.append(atribut1[rand_index])
-        bag_x2.append(atribut2[rand_index])
-        bag_y.append(label[rand_index])
+        bag_x1.append(x1[rand_index])
+        bag_x2.append(x2[rand_index])
+        bag_y.append(y[rand_index])
 
     return bag_x1, bag_x2, bag_y
 
 #naive bayes nya
-def naive_bayes(train_att1, train_att2, y, test_att1, test_att2):
+def naive_bayes(x1, x2, y, test1, test2):
     #bikin label encoder
     le = preprocessing.LabelEncoder()
 
     #convert isi dari datatrain jadi diskret number
-    train_att1_encode = le.fit_transform(train_att1)
-    train_att2_encode = le.fit_transform(train_att2)
+    x1_encode = le.fit_transform(x1)
+    x2_encode = le.fit_transform(x2)
     y_encode = le.fit_transform(y)
 
-    #gabungin train_att1 sama train_att2
-    features = list(zip(train_att1_encode, train_att2_encode))
+    #gabungin x1 sama x2
+    features = list(zip(x1_encode, x2_encode))
 
-    #bikin bernoulli classifier
-    model = BernoulliNB()
+    #bikin gaussian classifier
+    model = GaussianNB()
 
     #train model dengan datatrain
     model.fit(features, y_encode)
 
     # convert isi dari datatest jadi diskret number
-    test_att1_encode = le.fit_transform(test_att1)
-    test_att2_encode = le.fit_transform(test_att2)
+    test1_encode = le.fit_transform(test1)
+    test2_encode = le.fit_transform(test2)
 
     hasil_prediksi = []
     #prediksi/klasifikasi naive bayes
-    for i in range(0, len(test_att1)):
-        predicted = model.predict([[test_att1_encode[i], test_att2_encode[i]]])
+    for i in range(len(test1)):
+        predicted = model.predict([[test1_encode[i], test2_encode[i]]])
         hasil_prediksi.append(predicted[0])
 
     return hasil_prediksi
 
-with open('TrainsetTugas4ML.csv') as csv_file:
-    csv_reader = csv.reader(csv_file)
-    line_count = 0
-    x1_train = []
-    x2_train = []
-    y_train = []
-
-    for row in csv_reader:
-        if line_count == 0:
-            line_count += 1
-        else:
-            x1_train.append(row[0])
-            x2_train.append(row[1])
-            y_train.append(row[2])
-
-with open('TestsetTugas4ML.csv') as csv_file:
-    csv_reader = csv.reader(csv_file)
-    line_count = 0
-    x1_test = []
-    x2_test = []
-
-    for row in csv_reader:
-        if line_count == 0:
-            line_count += 1
-        else:
-            att1 = row[0]
-            att2 = row[1]
-            x1_test.append(att1)
-            x2_test.append(att2)
-
-#fungsi utama
 def main():
-    #bikin 6 bags berbasis naive bayes buat bagging modul nya
-    bag1 = modul(x1_train, x2_train, y_train)
-    bag2 = modul(x1_train, x2_train, y_train)
-    bag3 = modul(x1_train, x2_train, y_train)
-    bag4 = modul(x1_train, x2_train, y_train)
-    bag5 = modul(x1_train, x2_train, y_train)
-    bag6 = modul(x1_train, x2_train, y_train)
+    trainset = open_file('TrainsetTugas4ML.csv')
 
-    #memasukkan hasil prediksi/klasifikasi naive bayes ke variable
-    hasil_bag1 = naive_bayes(bag1[0],bag1[1],bag1[2],x1_test,x2_test)
-    hasil_bag2 = naive_bayes(bag2[0],bag2[1],bag2[2],x1_test,x2_test)
-    hasil_bag3 = naive_bayes(bag3[0],bag3[1],bag3[2],x1_test,x2_test)
-    hasil_bag4 = naive_bayes(bag4[0],bag4[1],bag4[2],x1_test,x2_test)
-    hasil_bag5 = naive_bayes(bag5[0],bag5[1],bag5[2],x1_test,x2_test)
-    hasil_bag6 = naive_bayes(bag6[0],bag6[1],bag6[2],x1_test,x2_test)
+    #read testset
+    testset = open_file('TestsetTugas4ML.csv')
 
-    #voting dari setiap bags untuk dipilih class/label yg akan dipake dan langsung write ke csv
-    with open("TebakanTugas4ML.csv", 'w', newline='') as csv_file:
-        writeCsv = csv.writer(csv_file)
-        for idx in range(0, len(hasil_bag1)):
-            count1 = 0
-            count2 = 0
+    #bikin 5 bags berbasis naive bayes buat bagging nya
+    bag1 = bagging(trainset[0], trainset[1], trainset[2]); bag2 = bagging(trainset[0], trainset[1], trainset[2]); bag3 = bagging(trainset[0], trainset[1], trainset[2]); bag4 = bagging(trainset[0], trainset[1], trainset[2]); bag5 = bagging(trainset[0], trainset[1], trainset[2])
 
-            if hasil_bag1[idx] == 1:
-                count1 += 1
-            elif hasil_bag1[idx] == 0:
-                count2 += 1
+    #memasukkan hasil prediksi/klasifikasi naive bayes ke matriks
+    matriks = np.matrix(
+        [naive_bayes(bag1[0],bag1[1],bag1[2],testset[0],testset[1]),
+         naive_bayes(bag2[0],bag2[1],bag2[2],testset[0],testset[1]),
+         naive_bayes(bag3[0],bag3[1],bag3[2],testset[0],testset[1]),
+         naive_bayes(bag4[0],bag4[1],bag4[2],testset[0],testset[1]),
+         naive_bayes(bag5[0],bag5[1],bag5[2],testset[0],testset[1])]
+    )
 
-            if hasil_bag2[idx] == 1:
-                count1 += 1
-            elif hasil_bag2[idx] == 0:
-                count2 += 1
+    #voting dari setiap bags untuk dipilih class/label yg akan dipake
+    final_pref = []
+    for i in range(len(testset[0])):
+        class1, class2 = 0, 0
+        #ngitung banyakan class yang 2 apa 1
+        for j in range(len(matriks)):
+            if matriks[j, i] == 0:
+                class2 += 1
+            else:
+                class1 += 1
 
-            if hasil_bag3[idx] == 1:
-                count1 += 1
-            elif hasil_bag3[idx] == 0:
-                count2 += 1
+        if class1 > class2:
+            final_pref.append(1)
+        else:
+            final_pref.append(2)
 
-            if hasil_bag4[idx] == 1:
-                count1 += 1
-            elif hasil_bag4[idx] == 0:
-                count2 += 1
+    #write file into csv
+    save_file(final_pref)
 
-            if hasil_bag5[idx] == 1:
-                count1 += 1
-            elif hasil_bag5[idx] == 0:
-                count2 += 1
-
-            if hasil_bag6[idx] == 1:
-                count1 += 1
-            elif hasil_bag6[idx] == 0:
-                count2 += 1
-
-            if count1 > count2:
-                    writeCsv.writerow([1])
-            elif count1 < count2:
-                    writeCsv.writerow([2])
-
-#jalanin fungsi utama
-main()
+if __name__ == '__main__':
+    main
